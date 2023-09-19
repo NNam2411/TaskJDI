@@ -1,6 +1,7 @@
 import React from "react";
 import Garage from "../components/Garage/Garage";
 import TheHeader from "../components/TheHeader";
+import { Outlet } from "react-router-dom";
 
 const HomePage = () => {
   return (
@@ -11,7 +12,7 @@ const HomePage = () => {
           <h1 className="text-3xl font-bold underline"> My Garage</h1>
         </div>
         <div className="pt-8">
-          <Garage></Garage>
+          <Outlet></Outlet>
         </div>
       </div>
     </div>
