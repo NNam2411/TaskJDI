@@ -1,29 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import connectToMetaMask from "../utils/etherUtils";
+import connectToMetaMask, {
+  CheckNetwork,
+  CheckBalance,
+} from "../utils/etherUtils";
 
 const TheHeader = () => {
+  // Connect to MetaMask, get address, get balance
   const [address, setAddress] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [balanceRaw, setBalanceRaw] = useState(0);
 
+  const connect = async () => {
+    try {
+      const signer = await connectToMetaMask();
+      const addr = await signer.address;
+      setAddress(addr);
+      setIsConnected(true);
+      // Get Balance
+      const balancer = await CheckBalance(addr);
+      console.log("file: TheHeader.jsx:24 || connect || balancer:", balancer);
+      setBalanceRaw(balancer);
+    } catch (error) {
+      console.error("Error connecting to MetaMask:", error);
+    }
+  };
+  // Process BigInt into int
+  let balanceString = balanceRaw.toString();
+  const balanceFloat = parseFloat(balanceString) / 10 ** 18;
+
+  // Check Network
+  const [isConnectBSCT, setIsConnectBSCT] = useState(false);
   useEffect(() => {
-    const connect = async () => {
-      try {
-        const signer = await connectToMetaMask();
-        console.log("file: TheHeader.jsx:12 || connect || signer:", signer);
-        const addr = await signer.getAddress();
-        setAddress(addr);
-        // setAddress(signer.address);
-        console.log("file: TheHeader.jsx:15 || connect || address:", address);
-      } catch (error) {
-        console.error("Error connecting to MetaMask:", error);
-      }
+    const checkBSCT = async () => {
+      const isConnected = await CheckNetwork();
+      setIsConnectBSCT(isConnected);
     };
 
-    connect();
-  }, [address]); // Chỉ chạy một lần khi component được render
+    checkBSCT();
+  });
 
   return (
-    <header className="w-[400px] xl:w-full py-5 pl-7 gap-x-7 fixed flex justify-start items-center font-bold  bg-[#B9C0DE]">
+    <header className="w-[400px] h-fit xl:w-full py-10 pl-7 gap-x-7 fixed flex justify-start items-center font-bold  bg-[#B9C0DE]">
       <NavLink
         to="/"
         className={({ isActive }) =>
@@ -54,13 +72,41 @@ const TheHeader = () => {
       >
         Hello Page
       </NavLink>
+
       {/* address of crypto mask */}
-      <div className="flex flex-row justify-center items-center absolute right-5">
-        <div className="mr-5">Address: </div>
-        <div className="h-10 w-full px-7 bg-gradient-to-r from-[#76d5a7] to-[#3092a6] text-white flex justify-center items-center rounded-lg">
-          {address}
+      {isConnected === false && (
+        <div className="flex flex-row justify-center items-center absolute right-5">
+          <button
+            className="h-10 w-full px-7 bg-gradient-to-r from-[#ff5858] to-[#b47878] text-white flex justify-center items-center rounded-lg"
+            // eslint-disable-next-line no-undef
+            onClick={connect}
+          >
+            Connect to MetaMask
+          </button>
         </div>
-      </div>
+      )}
+
+      {isConnected && isConnectBSCT && balanceRaw != null && (
+        <div className="flex flex-row justify-center items-center absolute right-5 gap-3">
+          <div className="">Address: </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-10 w-full px-7 bg-gradient-to-r from-[#76d5a7] to-[#3092a6] text-white flex justify-center items-center rounded-lg">
+              {address}
+            </div>
+            <div className="h-10 w-full px-7 bg-gradient-to-r from-[#76bcd5] to-[#3e30a6] text-white flex justify-center items-center rounded-lg">
+              {balanceFloat} BNB
+            </div>
+          </div>
+        </div>
+      )}
+      {isConnected && isConnectBSCT === false && (
+        <div className="flex flex-row justify-center items-center absolute right-5">
+          <div className="mr-5">Address: </div>
+          <div className="h-10 w-full px-7 bg-gradient-to-r from-[#d45555] to-[#c25d5d] text-white flex justify-center items-center rounded-lg">
+            Wrong Network
+          </div>
+        </div>
+      )}
     </header>
   );
 };
