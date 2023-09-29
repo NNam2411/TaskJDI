@@ -4,41 +4,81 @@ import connectToMetaMask, {
   CheckNetwork,
   CheckBalance,
 } from "../utils/etherUtils";
+import { ethers } from "ethers";
 
 const TheHeader = () => {
   // Connect to MetaMask, get address, get balance
   const [address, setAddress] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  // const [isConnected, setIsConnected] = useState(
+  //   localStorage.getItem("isConnected") === "true"
+  // );
   const [balanceRaw, setBalanceRaw] = useState(0);
-
   const connect = async () => {
     try {
       const signer = await connectToMetaMask();
+      // Get Address
       const addr = await signer.address;
       setAddress(addr);
       setIsConnected(true);
+      localStorage.setItem("isConnected", isConnected);
+      localStorage.setItem("address", addr);
+
       // Get Balance
       const balancer = await CheckBalance(addr);
-      console.log("file: TheHeader.jsx:24 || connect || balancer:", balancer);
       setBalanceRaw(balancer);
     } catch (error) {
       console.error("Error connecting to MetaMask:", error);
     }
   };
-  // Process BigInt into int
+
+  // Process BigInt into int use balanceRaw
   let balanceString = balanceRaw.toString();
   const balanceFloat = parseFloat(balanceString) / 10 ** 18;
+  // Store into localStorage
+  localStorage.setItem("balance", balanceFloat);
 
   // Check Network
   const [isConnectBSCT, setIsConnectBSCT] = useState(false);
   useEffect(() => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+
+    // Function Check network connect and check if this is BSC Testnet
     const checkBSCT = async () => {
-      const isConnected = await CheckNetwork();
-      setIsConnectBSCT(isConnected);
+      const isConnectedNW = await CheckNetwork();
+      if (isConnectedNW) {
+        setIsConnectBSCT(isConnectedNW);
+      } else {
+        setIsConnectBSCT(false);
+        onNetworkChange();
+      }
     };
 
-    checkBSCT();
-  });
+    // Funtion change the network to BSC Testnet
+    const onNetworkChange = async () => {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+      const networkId = network.chainId;
+      // Switch to BSC Testnet
+      if (networkId !== 97n) {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x61" }],
+        });
+        window.location.reload();
+      }
+      checkBSCT();
+    };
+
+    if (isConnectBSCT === false) {
+      // Add event change network
+      provider.on("network", onNetworkChange);
+      checkBSCT();
+    }
+    return () => {
+      provider.off("network", onNetworkChange);
+    };
+  }, [isConnectBSCT]);
 
   return (
     <header className="w-[400px] h-fit xl:w-full py-10 pl-7 gap-x-7 fixed flex justify-start items-center font-bold  bg-[#B9C0DE]">
