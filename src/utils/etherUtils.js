@@ -23,10 +23,7 @@ export const connectToMetaMask = async () => {
 export const CheckNetwork = async () => {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const network = await provider.getNetwork();
-  console.log(
-    "file: etherUtils.js:25|| connectToMetaMask || network:",
-    network
-  );
+  console.log("file: etherUtils.js:25|| CheckNetwork || network:", network);
   const networkId = network.chainId;
   const networkName = network.name;
   if (networkId === 97n && networkName === "bnbt") {
@@ -37,6 +34,24 @@ export const CheckNetwork = async () => {
     return false;
   }
 };
+
+export const getNetworkInfo = async () => {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const network = await provider.getNetwork();
+  console.log(
+    "file: etherUtils.js:25|| connectToMetaMask || network:",
+    network
+  );
+  const networkId = network.chainId;
+  console.log("file: etherUtils.js:49 || getNetwork || networkId:", networkId);
+  const networkName = network.name;
+  console.log(
+    "file: etherUtils.js:51 || getNetwork || networkName:",
+    networkName
+  );
+  return networkId, networkName;
+};
+
 export const CheckBalance = async (address) => {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const balance = await provider.getBalance(address);
