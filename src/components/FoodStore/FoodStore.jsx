@@ -1,5 +1,6 @@
 import React from "react";
 import Food from "./Food";
+import ConnectContract from "../Contract/ConnectContract";
 
 const FoodStore = () => {
   const foods = [

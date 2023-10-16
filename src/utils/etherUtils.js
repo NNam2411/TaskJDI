@@ -26,7 +26,11 @@ export const CheckNetwork = async () => {
   console.log("file: etherUtils.js:25|| CheckNetwork || network:", network);
   const networkId = network.chainId;
   const networkName = network.name;
-  if (networkId === 97n && networkName === "bnbt") {
+
+  // bsb testnet 97n , bsb testnet name: bsc-testnet
+  // polygon testnet 80001n , polygon testnet name: matic-mumbai
+  // if (networkId === 97n && networkName === "bnbt")
+  if (networkId === 80001n && networkName === "matic-mumbai") {
     console.log("Ethers BSC succes:", "Connected to BSC Testnet");
     return true;
   } else {
