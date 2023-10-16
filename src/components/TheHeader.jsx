@@ -59,11 +59,15 @@ const TheHeader = () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
       const networkId = network.chainId;
+      console.log(networkId);
       // Switch to BSC Testnet
-      if (networkId !== 97n) {
+
+      // bsb testnet 97n , bsb testnet name: bsc-testnet 0x61
+      // polygon testnet 80001n , polygon testnet name: matic-mumbai 0x13881
+      if (networkId !== 80001n) {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x61" }],
+          params: [{ chainId: "0x13881" }],
         });
         window.location.reload();
       }
