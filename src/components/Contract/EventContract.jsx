@@ -18,12 +18,139 @@ const EventContract = () => {
     getSigner();
   }, []);
 
-  const contractAddress = "0xE4d24FF9d3f886c0ef864353170a2e1fc550E2e6";
-  const abi = [
-    "event Deposit(address _addr, uint256 timestamp, uint256 amount)",
-    "event Withdraw(address _addr, uint256 amount)",
-  ]; // ABI của smart contract
+  const contractAddress = "0x73d8dbA188E55C3090ECe363aF24B88c3C05ddF3";
+  // const abi = [
+  //   "event Deposit(address _addr, uint256 timestamp, uint256 amount)",
+  //   "event Withdraw(address _addr, uint256 amount)",
+  // ]; // ABI của smart contract
 
+  const abi = [
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "deposit",
+      outputs: [],
+      stateMutability: "payable",
+      type: "function",
+    },
+    {
+      inputs: [],
+      stateMutability: "nonpayable",
+      type: "constructor",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "address",
+          name: "_addr",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "timestamp",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "Deposit",
+      type: "event",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "withdraw",
+      outputs: [],
+      stateMutability: "payable",
+      type: "function",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: "address",
+          name: "_addr",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "Withdraw",
+      type: "event",
+    },
+    {
+      inputs: [],
+      name: "getBalance",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "owner",
+      outputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+      ],
+      name: "transactions",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "totalBalance",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "timestamp",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
   const contract = new ethers.Contract(contractAddress, abi, signer);
 
   const [address, setAddress] = useState();
@@ -45,14 +172,14 @@ const EventContract = () => {
   }
   const listenToEvent = async () => {
     console.log("Event Connected");
-    contract.on("Deposit", (from, timestamp, amount) => {
+    await contract.on("Deposit", (from, timestamp, amount) => {
       console.log(from, timestamp, amount);
       setAddress(from);
       setAmount(parseFloat(amount));
       transferDate(parseFloat(timestamp));
       setTimestamp(timestamp);
     });
-    contract.on("Withdraw", (from, amount) => {
+    await contract.on("Withdraw", (from, amount) => {
       console.log(from, amount);
       setAddress(from);
       setAmount(parseFloat(amount));

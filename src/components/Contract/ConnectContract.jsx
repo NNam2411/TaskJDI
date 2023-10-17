@@ -14,46 +14,47 @@ const ConnectContract = () => {
   useEffect(() => {
     const getSigner = async () => {
       const signer = await provider.getSigner();
+
       setSigner(signer);
     };
     getSigner();
   }, []);
 
   // Địa chỉ của smart contract đã triển khai
-  const contractAddress = "0x4c832e8eA9AAFf52CaF5E1105dbEfFeDA77C2480";
-  // ABI
-  // [
-  //   {
-  //     inputs: [
-  //       {
-  //         internalType: "uint256",
-  //         name: "a",
-  //         type: "uint256",
-  //       },
-  //     ],
-  //     name: "set",
-  //     outputs: [],
-  //     stateMutability: "nonpayable",
-  //     type: "function",
-  //   },
-  //   {
-  //     inputs: [],
-  //     name: "get",
-  //     outputs: [
-  //       {
-  //         internalType: "uint256",
-  //         name: "a",
-  //         type: "uint256",
-  //       },
-  //     ],
-  //     stateMutability: "view",
-  //     type: "function",
-  //   },
-  // ],
+  const contractAddress = "0x788410Ae1Cd3b314e90700EC24eCA14FAA3acB8A";
+  //ABI
   const abi = [
-    "function get() public view returns (uint a)",
-    "function set(uint a) public",
-  ]; // ABI của smart contract
+    {
+      inputs: [],
+      name: "get",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "a",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "a",
+          type: "uint256",
+        },
+      ],
+      name: "set",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ];
+  // const abi = [
+  //   "function get() public view returns (uint a)",
+  //   "function set(uint a) public",
+  // ]; // ABI của smart contract
 
   // Create the contract
   const contract = new ethers.Contract(contractAddress, abi, signer);
