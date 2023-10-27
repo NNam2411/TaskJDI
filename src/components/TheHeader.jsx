@@ -1,86 +1,64 @@
-import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import connectToMetaMask, {
-  CheckNetwork,
-  CheckBalance,
-} from "../utils/etherUtils";
-import { ethers } from "ethers";
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable no-use-before-define */
+import React, { useEffect, useState } from 'react';
+import { ethers, parseEther, parseUnits } from 'ethers';
+import { NavLink } from 'react-router-dom';
+import { connectToMetaMask, CheckNetwork, CheckBalance } from '../utils/etherUtils';
 
-const TheHeader = () => {
-  // Connect to MetaMask, get address, get balance
-  const [address, setAddress] = useState("");
+function TheHeader() {
+  const [address, setAddress] = useState('');
   const [isConnected, setIsConnected] = useState(false);
-  // const [isConnected, setIsConnected] = useState(
-  //   localStorage.getItem("isConnected") === "true"
-  // );
+  const [isConnectBSCT, setIsConnectBSCT] = useState(false); // Check Network
   const [balanceRaw, setBalanceRaw] = useState(0);
-  const connect = async () => {
-    try {
-      const signer = await connectToMetaMask();
-      // Get Address
-      const addr = await signer.address;
-      setAddress(addr);
-      setIsConnected(true);
-      localStorage.setItem("isConnected", isConnected);
-      localStorage.setItem("address", addr);
+  const provider = new ethers.BrowserProvider(window.ethereum);
 
-      // Get Balance
-      const balancer = await CheckBalance(addr);
-      setBalanceRaw(balancer);
-    } catch (error) {
-      console.error("Error connecting to MetaMask:", error);
+  const connect = async () => {
+    const signer = await connectToMetaMask();
+    // Get Address
+    const addr = await signer.address;
+    setAddress(addr);
+    setIsConnected(true);
+    // Get Balance
+    const balancer = await CheckBalance(addr);
+    setBalanceRaw(parseFloat(balancer));
+  };
+
+  // Function Check network connect and check if this is BSC Testnet
+  const checkBSCT = async () => {
+    const isConnectedNW = await CheckNetwork();
+    if (isConnectedNW) {
+      setIsConnectBSCT(isConnectedNW);
+    } else {
+      setIsConnectBSCT(false);
+      onNetworkChange();
     }
   };
 
-  // Process BigInt into int use balanceRaw
-  let balanceString = balanceRaw.toString();
-  const balanceFloat = parseFloat(balanceString) / 10 ** 18;
-  // Store into localStorage
-  localStorage.setItem("balance", balanceFloat);
-
-  // Check Network
-  const [isConnectBSCT, setIsConnectBSCT] = useState(false);
   useEffect(() => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-
-    // Function Check network connect and check if this is BSC Testnet
-    const checkBSCT = async () => {
-      const isConnectedNW = await CheckNetwork();
-      if (isConnectedNW) {
-        setIsConnectBSCT(isConnectedNW);
-      } else {
-        setIsConnectBSCT(false);
-        onNetworkChange();
-      }
-    };
-
+    connect();
     // Funtion change the network to BSC Testnet
     const onNetworkChange = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
       const networkId = network.chainId;
       console.log(networkId);
-      // Switch to BSC Testnet
-
       // bsb testnet 97n , bsb testnet name: bsc-testnet 0x61
       // polygon testnet 80001n , polygon testnet name: matic-mumbai 0x13881
       if (networkId !== 80001n) {
         await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x13881" }],
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x13881' }]
         });
         window.location.reload();
       }
       checkBSCT();
     };
-
     if (isConnectBSCT === false) {
       // Add event change network
-      provider.on("network", onNetworkChange);
+      provider.on('network', onNetworkChange);
       checkBSCT();
     }
     return () => {
-      provider.off("network", onNetworkChange);
+      provider.off('network', onNetworkChange);
     };
   }, [isConnectBSCT]);
 
@@ -90,30 +68,27 @@ const TheHeader = () => {
         to="/"
         className={({ isActive }) =>
           isActive
-            ? "h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg"
-            : "h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg"
-        }
-      >
+            ? 'h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg'
+            : 'h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg'
+        }>
         Home
       </NavLink>
       <NavLink
         to="/food"
         className={({ isActive }) =>
           isActive
-            ? "h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg"
-            : "h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg"
-        }
-      >
+            ? 'h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg'
+            : 'h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg'
+        }>
         Food Store
       </NavLink>
       <NavLink
         to="/hello"
         className={({ isActive }) =>
           isActive
-            ? "h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg"
-            : "h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg"
-        }
-      >
+            ? 'h-10 w-48 bg-gradient-to-r from-[#7DC383] to-[#699C78] text-white flex justify-center items-center rounded-lg'
+            : 'h-10 w-48 text-[#2E327180] flex justify-center items-center rounded-lg'
+        }>
         Hello Page
       </NavLink>
 
@@ -121,10 +96,9 @@ const TheHeader = () => {
       {isConnected === false && (
         <div className="flex flex-row justify-center items-center absolute right-5">
           <button
+            type="button"
             className="h-10 w-full px-7 bg-gradient-to-r from-[#ff5858] to-[#b47878] text-white flex justify-center items-center rounded-lg"
-            // eslint-disable-next-line no-undef
-            onClick={connect}
-          >
+            onClick={connect}>
             Connect to MetaMask
           </button>
         </div>
@@ -138,7 +112,7 @@ const TheHeader = () => {
               {address}
             </div>
             <div className="h-10 w-full px-7 bg-gradient-to-r from-[#76bcd5] to-[#3e30a6] text-white flex justify-center items-center rounded-lg">
-              {balanceFloat} BNB
+              {balanceRaw / 10 ** 18} BNB
             </div>
           </div>
         </div>
@@ -153,6 +127,6 @@ const TheHeader = () => {
       )}
     </header>
   );
-};
+}
 
 export default TheHeader;
