@@ -33,25 +33,24 @@ function TheHeader() {
       onNetworkChange();
     }
   };
-
+  // Funtion change the network to BSC Testnet
+  const onNetworkChange = async () => {
+    const network = await provider.getNetwork();
+    const networkId = network.chainId;
+    console.log(networkId);
+    // bsb testnet 97n , bsb testnet name: bsc-testnet 0x61
+    // polygon testnet 80001n , polygon testnet name: matic-mumbai 0x13881
+    if (networkId !== 80001n) {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x13881' }]
+      });
+      window.location.reload();
+    }
+    checkBSCT();
+  };
   useEffect(() => {
     connect();
-    // Funtion change the network to BSC Testnet
-    const onNetworkChange = async () => {
-      const network = await provider.getNetwork();
-      const networkId = network.chainId;
-      console.log(networkId);
-      // bsb testnet 97n , bsb testnet name: bsc-testnet 0x61
-      // polygon testnet 80001n , polygon testnet name: matic-mumbai 0x13881
-      if (networkId !== 80001n) {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x13881' }]
-        });
-        window.location.reload();
-      }
-      checkBSCT();
-    };
     if (isConnectBSCT === false) {
       // Add event change network
       provider.on('network', onNetworkChange);
